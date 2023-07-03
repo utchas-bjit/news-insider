@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
+                color: const Color.fromARGB(255, 232, 230, 230).withOpacity(0.5),
                 spreadRadius: 5,
                 blurRadius: 7,
                 offset: const Offset(0, 3), // changes position of shadow
@@ -33,6 +33,48 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class NewsList extends StatefulWidget {
+  const NewsList({Key? key}) : super(key: key);
+
+  @override
+  State<NewsList> createState() => _NewsListState();
+}
+
+class _NewsListState extends State<NewsList> {
+  NewsApiResponse? _newsApiResponse;
+  final NetworkManager _networkManager = NetworkManager.instance();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNews();
+  }
+
+  Future<void> _fetchNews() async {
+    final newsApiResponse =
+        await _networkManager.getTopHeadlines('business', 'us');
+    setState(() {
+      _newsApiResponse = newsApiResponse;
+    });
+  }
+  //function for date format: 2021-09-12T12:00:00Z conver this to 12 Sep 2021
+  
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return _newsApiResponse == null
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: _newsApiResponse!.articles.length,
+            itemBuilder: (BuildContext context, int index) {
+              final article = _newsApiResponse!.articles[index];
+              return NewsListItem(article: article);
+            },
+          );
+  }
+}
 
 class NewsListItem extends StatelessWidget {
   final Article article;
@@ -99,49 +141,5 @@ class NewsListItem extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-
-class NewsList extends StatefulWidget {
-  const NewsList({Key? key}) : super(key: key);
-
-  @override
-  State<NewsList> createState() => _NewsListState();
-}
-
-class _NewsListState extends State<NewsList> {
-  NewsApiResponse? _newsApiResponse;
-  final NetworkManager _networkManager = NetworkManager.instance();
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchNews();
-  }
-
-  Future<void> _fetchNews() async {
-    final newsApiResponse =
-        await _networkManager.getTopHeadlines('business', 'us');
-    setState(() {
-      _newsApiResponse = newsApiResponse;
-    });
-  }
-  //function for date format: 2021-09-12T12:00:00Z conver this to 12 Sep 2021
-  
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return _newsApiResponse == null
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            itemCount: _newsApiResponse!.articles.length,
-            itemBuilder: (BuildContext context, int index) {
-              final article = _newsApiResponse!.articles[index];
-              return NewsListItem(article: article);
-            },
-          );
   }
 }

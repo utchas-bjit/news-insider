@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:news_insider/network/network_manager.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class NewsDetails extends StatelessWidget {
   final Article article;
 
   const NewsDetails({Key? key, required this.article}) : super(key: key);
-
+  String formatDate(String date) {
+    final DateTime dateTime = DateTime.parse(date);
+  
+    final formattedDate = 'Date : ${dateTime.day}/ ${dateTime.month}/ ${dateTime.year}';
+       
+    return formattedDate;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +42,7 @@ class NewsDetails extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${article.publishedAt ?? ''}',
+                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt  ?? '')}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
@@ -51,6 +58,18 @@ class NewsDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // open in external browser
+                    if (await canLaunchUrlString(article.url!)) {
+                      await launchUrlString(article.url!);
+                    } 
+                  },
+                  child: const Text('View full article'),
+                ),
+              ),
             ],
           ),
         ),
