@@ -41,7 +41,7 @@ class NewsListItem extends StatelessWidget {
   String formatDate(String date) {
     final DateTime dateTime = DateTime.parse(date);
   
-    final formattedDate = 'Date : ${dateTime.day}/${dateTime.month}${dateTime.year}';
+    final formattedDate = 'Date : ${dateTime.day}/ ${dateTime.month}/ ${dateTime.year}';
        
     return formattedDate;
   }
@@ -54,44 +54,47 @@ class NewsListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (article.urlToImage != null)
-              Image.network(
-                article.urlToImage!,
-                height: 150,
-                width: double.infinity,
-                fit: BoxFit.cover,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (article.urlToImage != null)
+                Image.network(
+                  article.urlToImage!,
+                  height: 150,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              const SizedBox(height: 8),
+              Text(
+                article.title ?? '',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            const SizedBox(height: 8),
-            Text(
-              article.title ?? '',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              Text(
+                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt ?? '')}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt ?? '')}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewsDetails(article: article),
+                    ),
+                  );
+                },
+                child: const Text('View Details'),
               ),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewsDetails(article: article),
-                  ),
-                );
-              },
-              child: const Text('View Details'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
