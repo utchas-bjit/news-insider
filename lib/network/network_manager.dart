@@ -55,6 +55,7 @@ class Article {
   final String? urlToImage;
   final String? publishedAt;
   final String? content;
+  bool isFavorite = false;
 
   Article({this.source, this.author, this.title, this.description, this.url, this.urlToImage, this.publishedAt, this.content});
 

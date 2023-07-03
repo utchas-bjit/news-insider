@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:news_insider/network/network_manager.dart';
 import 'package:news_insider/news_details.dart';
+import 'package:news_insider/network/api_manager.dart';
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String _selectedCategory = 'business';
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      _selectedCategory = category;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,14 +34,29 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromARGB(255, 232, 230, 230).withOpacity(0.5),
+                color: Color.fromARGB(255, 231, 229, 229).withOpacity(0.5),
                 spreadRadius: 5,
                 blurRadius: 7,
                 offset: const Offset(0, 3), // changes position of shadow
               ),
             ],
           ),
-          child: const NewsList(),
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Categories(
+                  categories: APIManger.instance().categories,
+                  selectedCategory: _selectedCategory,
+                  onCategorySelected: _onCategorySelected,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: NewsList(selectedCategory: _selectedCategory),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -34,7 +64,9 @@ class MyApp extends StatelessWidget {
 }
 
 class NewsList extends StatefulWidget {
-  const NewsList({Key? key}) : super(key: key);
+  final String selectedCategory;
+
+  const NewsList({Key? key, required this.selectedCategory}) : super(key: key);
 
   @override
   State<NewsList> createState() => _NewsListState();
@@ -51,16 +83,21 @@ class _NewsListState extends State<NewsList> {
   }
 
   Future<void> _fetchNews() async {
-    final newsApiResponse =
-        await _networkManager.getTopHeadlines('business', 'us');
+    final newsApiResponse = await _networkManager.getTopHeadlines(
+        widget.selectedCategory.toLowerCase(), 'us');
     setState(() {
       _newsApiResponse = newsApiResponse;
     });
   }
-  //function for date format: 2021-09-12T12:00:00Z conver this to 12 Sep 2021
-  
 
+  String formatDate(String date) {
+    final DateTime dateTime = DateTime.parse(date);
 
+    final formattedDate =
+        'Date : ${dateTime.day}/ ${dateTime.month}/ ${dateTime.year}';
+
+    return formattedDate;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +118,6 @@ class NewsListItem extends StatelessWidget {
 
   const NewsListItem({Key? key, required this.article}) : super(key: key);
 
-  String formatDate(String date) {
-    final DateTime dateTime = DateTime.parse(date);
-  
-    final formattedDate = 'Date : ${dateTime.day}/ ${dateTime.month}/ ${dateTime.year}';
-       
-    return formattedDate;
-  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -117,13 +147,13 @@ class NewsListItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt ?? '')}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
+              // Text(
+              //   'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt ?? '')}',
+              //   style: const TextStyle(
+              //     fontSize: 14,
+              //     color: Colors.grey,
+              //   ),
+              // ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
@@ -140,6 +170,41 @@ class NewsListItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class Categories extends StatelessWidget {
+  final List<String> categories;
+  final String selectedCategory;
+  final Function(String) onCategorySelected;
+
+  const Categories({
+    Key? key,
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (final category in categories)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                onCategorySelected(category);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    selectedCategory == category ? Colors.green : null,
+              ),
+              child: Text(category),
+            ),
+          ),
+      ],
     );
   }
 }
