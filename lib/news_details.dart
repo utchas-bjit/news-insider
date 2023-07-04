@@ -42,7 +42,7 @@ class NewsDetails extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n ${formatDate(article.publishedAt  ?? '')}',
+                'By ${article.author ?? 'Unknown'} | ${article.source?.name ?? 'Unknown'} \n${formatDate(article.publishedAt  ?? '')}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
